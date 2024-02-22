@@ -10,6 +10,7 @@ var logger_instance *logger
 type ILogger interface {
 	Info(string)
 	Debug(string)
+	Error(string, ...any)
 }
 
 type logger struct {
@@ -29,4 +30,8 @@ func (l *logger) Info(message string) {
 
 func (l *logger) Debug(message string) {
 	slog.Debug(message)
+}
+
+func (l *logger) Error(message string, args ...any) {
+	slog.Error(message, args)
 }

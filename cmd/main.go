@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/tankhiwale/ecBackendWeb/config"
@@ -11,7 +10,7 @@ import (
 )
 
 func main() {
-	// TODO: initialize config
+
 	config, err := config.InitializeConfig("./config", "config")
 	if err != nil {
 		fmt.Errorf("error initializing config - %v", err)
@@ -20,25 +19,24 @@ func main() {
 		fmt.Errorf("config cannot be nil")
 		os.Exit(1)
 	}
-	// TODO: initialize prometheus
-	// TODO: initiliaze logger
+
 	logger := logger.NewLogger()
 	configStr := fmt.Sprintf("%#v", config)
 	logger.Info(configStr)
 	logger.Info("Initializing server..")
-	// TODO: initialize server
-	s := server.NewServer(config.BindPort)
-	s.Init()
-	s.Run()
 
-}
+	s := server.NewServer(config, logger)
+	errC, err := s.Init()
 
-type APIFunc func(http.ResponseWriter, *http.Request) error
-
-func makeAPIFunc(fn APIFunc) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		if err := fn(res, req); err != nil {
-			fmt.Errorf("Error : %v", err)
-		}
+	// to catch pre-server initialization errors
+	if err != nil {
+		logger.Error("Error: Could not initialize server %s", err)
+		os.Exit(1)
 	}
+
+	// to handle post-server boot errors
+	if err := <-errC; err != nil {
+		logger.Error("Error while running server: %s", err)
+	}
+
 }

@@ -2,12 +2,32 @@ package config
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/viper"
 )
 
-type Config struct {
+type ServerConfig struct {
 	BindPort string
+}
+
+type DatabaseConfig struct {
+	Scheme       string
+	Host         string
+	Port         string
+	Username     string
+	Password     string
+	DatabaseName string
+	SslMode      string
+}
+
+type MetricsConfig struct {
+}
+
+type Config struct {
+	Server   ServerConfig
+	Database DatabaseConfig
+	Metrics  MetricsConfig
 }
 
 func InitializeConfig(configFilePath string, configFileName string) (*Config, error) {
@@ -19,7 +39,7 @@ func InitializeConfig(configFilePath string, configFileName string) (*Config, er
 	viper.SetConfigType("yaml")
 	if err := viper.ReadInConfig(); err != nil {
 		// TODO log to stderr as main logger has not been initialized yet.
-		fmt.Errorf("error in reading config - %v", err)
+		log.Fatalf("error in reading config - %v", err)
 		return nil, err
 	}
 	return unmarshallConfig(config)
