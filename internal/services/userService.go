@@ -9,8 +9,8 @@ type userService struct {
 	repo repositories.IUserRepo
 }
 
-func initializeUserService(repo repositories.IUserRepo)(IUserService) {
+func initializeUserService(repo repositories.IUserRepo) IUserService {
 	return &userService{
-		repo: 
+		repo: repo,
 	}
 }
